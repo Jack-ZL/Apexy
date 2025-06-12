@@ -1,5 +1,6 @@
 package cors
 
+// Package cors 实现 CORS (跨域资源共享) Middleware，解决跨域问题
 import (
 	"apexy/middleware"
 	"net/http"
@@ -19,7 +20,7 @@ func CORSMiddleware(cfg config.CORSConfig) middleware.MiddlewareFunc {
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			origin := r.Header.Get("Origin")
+			origin := r.Header.Get("Origin") // 获取请求中的 Origin Header
 			if origin == "" {
 				next.ServeHTTP(w, r) // 非跨域请求，直接跳过 CORS 处理
 				return

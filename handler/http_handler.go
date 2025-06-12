@@ -11,9 +11,9 @@ import (
 
 // HTTPHandler 结构体，处理 HTTP 请求
 type HTTPHandler struct {
-	router          *route.Router
-	reverseProxy    *proxy.ReverseProxy
-	middlewareChain *middleware.ChainBuilder
+	router          *route.Router            // 路由服务
+	reverseProxy    *proxy.ReverseProxy      // 反向代理服务
+	middlewareChain *middleware.ChainBuilder // 中间件链构建器
 }
 
 // NewHTTPHandler 创建 HTTPHandler 实例
@@ -51,7 +51,7 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		h.reverseProxy.ServeHTTP(w, proxyRequest, routeEntry) // 执行反向代理
 	})
-	//handler = h.middlewareChain.Build(handler) // 构建并应用 Middleware 链
+	// handler = h.middlewareChain.Build(handler) // 构建并应用 Middleware 链
 	handler = h.middlewareChain.Build(handler).ServeHTTP // 构建并应用 Middleware 链
 
 	// 4. 执行 Handler (开始处理请求，应用中间件和反向代理)

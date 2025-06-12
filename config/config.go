@@ -25,8 +25,8 @@ type ServerConfig struct {
 
 // LogConfig 定义日志配置
 type LogConfig struct {
-	Level  string `yaml:"level"`
-	Format string `yaml:"format"` // "json" or "text"
+	Level  string `yaml:"level"`  // 日志级别 "debug", "info", "warn", "error"
+	Format string `yaml:"format"` // 日志格式化方式  "json" or "text"
 	Output string `yaml:"output"` // "file" or "stdout"
 	File   string `yaml:"file"`   // 日志文件路径 (如果 output 是 "file")
 }
@@ -38,13 +38,13 @@ type MetricsConfig struct {
 
 // Route 定义路由规则
 type Route struct {
-	Path              string            `yaml:"path"`
-	Method            string            `yaml:"method"`
-	Backend           string            `yaml:"backend"` // 后端服务地址
-	RequestTransform  RequestTransform  `yaml:"request_transform"`
-	ResponseTransform ResponseTransform `yaml:"response_transform"`
-	Auth              RouteAuth         `yaml:"auth"`
-	RateLimit         RouteRateLimit    `yaml:"rate_limit"`
+	Path              string            `yaml:"path"`               // 路由路径
+	Method            string            `yaml:"method"`             // 请求方式
+	Backend           string            `yaml:"backend"`            // 后端服务地址
+	RequestTransform  RequestTransform  `yaml:"request_transform"`  // 请求转换规则
+	ResponseTransform ResponseTransform `yaml:"response_transform"` // 响应转换规则
+	Auth              RouteAuth         `yaml:"auth"`               // 路由认证配置
+	RateLimit         RouteRateLimit    `yaml:"rate_limit"`         // 路由速率限制配置
 }
 
 // RequestTransform 定义请求转换规则
@@ -63,7 +63,7 @@ type ResponseTransform struct {
 
 // RouteAuth 定义路由级别的认证配置
 type RouteAuth struct {
-	APIKeyAuthEnabled bool `yaml:"api_key_auth_enabled"`
+	APIKeyAuthEnabled bool `yaml:"api_key_auth_enabled"` // 是否启用 API Key 认证
 }
 
 // AuthConfig 定义全局认证配置

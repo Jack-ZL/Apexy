@@ -1,5 +1,6 @@
 package metrics
 
+// Metrics 包提供了一个简单的 Prometheus 监控服务，支持注册和暴露自定义指标
 import (
 	"fmt"
 	"net/http"
@@ -32,7 +33,7 @@ func (m *MetricsServer) Start() {
 		http.Handle("/metrics", promhttp.HandlerFor(m.registry, promhttp.HandlerOpts{})) // 注册 /metrics Handler
 		addr := fmt.Sprintf(":%d", m.port)
 		log.Infof("Prometheus metrics endpoint listening on %s/metrics", addr)
-		if err := http.ListenAndServe(addr, nil); err != nil && err != http.ErrServerClosed {
+		if err := http.ListenAndServe(addr, nil); err != nil && err != http.ErrServerClosed { // 监听指定端口
 			log.Errorf("Metrics server ListenAndServe failed: %v", err)
 		}
 	}()
@@ -44,6 +45,7 @@ func (m *MetricsServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // RegisterGauge 指标 Gauge 注册
+// Gauge 用于表示一个可以任意增减的数值，比如当前内存使用量、并发数等。
 func (m *MetricsServer) RegisterGauge(opts prometheus.GaugeOpts) prometheus.Gauge {
 	gauge := prometheus.NewGauge(opts)
 	m.registry.MustRegister(gauge)
@@ -51,13 +53,15 @@ func (m *MetricsServer) RegisterGauge(opts prometheus.GaugeOpts) prometheus.Gaug
 }
 
 // RegisterCounter 指标 Counter 注册
+// Counter 用于统计只增不减的数值，比如请求总数、错误总数等。每次调用 Inc() 方法时，计数器会加一，适合用于累计事件发生的次数。
 func (m *MetricsServer) RegisterCounter(opts prometheus.CounterOpts) prometheus.Counter {
 	counter := prometheus.NewCounter(opts)
 	m.registry.MustRegister(counter)
 	return counter
 }
 
-// RegisterHistogram 指标 Histogram 注册
+// RegisterHistogram 指标 Histogram（直方图）注册
+// Histogram 用于统计一组数值的分布情况，常用于记录请求延迟、响应时间等连续型数据的分布。通过 prometheus.NewHistogram 创建指标后，注册到自定义的 registry，便于后续采集和暴露。
 func (m *MetricsServer) RegisterHistogram(opts prometheus.HistogramOpts) prometheus.Histogram {
 	histogram := prometheus.NewHistogram(opts)
 	m.registry.MustRegister(histogram)

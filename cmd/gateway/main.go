@@ -29,7 +29,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// 2. 初始化 Logger
+	// 2. 初始化 Logger 日志服务
 	logger := log.NewLogger(cfg.Log.Level, cfg.Log.Format, cfg.Log.Output, cfg.Log.File)
 	log.SetGlobalLogger(logger)
 	log.Infof("Starting API Gateway...")
@@ -39,7 +39,7 @@ func main() {
 	metricsServer.Start()
 	log.Infof("Metrics server started on port %d", cfg.Metrics.Port)
 
-	// 4. 初始化 Router
+	// 4. 初始化 Router 路由服务
 	router := route.NewRouter()
 	if err := router.LoadRoutesFromConfig(cfg.Routes); err != nil {
 		log.Fatalf("Failed to load routes: %v", err)

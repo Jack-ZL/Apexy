@@ -1,5 +1,6 @@
 package log
 
+// logger.go 日志服务模块，使用 zap 作为日志库，支持多种日志级别和格式化方式
 import (
 	"fmt"
 	"os"

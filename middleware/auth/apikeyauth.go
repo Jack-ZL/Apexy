@@ -50,6 +50,7 @@ func APIKeyAuthMiddleware(cfg config.APIKeyAuthConfig) middleware.MiddlewareFunc
 	}
 }
 
+// trimApiKey 去除 API Key 的前后空格
 func trimApiKey(apiKey string) string {
 	return strings.TrimSpace(apiKey)
 }

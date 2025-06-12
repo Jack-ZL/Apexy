@@ -22,3 +22,6 @@
 go.work
 
 config/*.yaml
+
+.idea
+.DS_Store
