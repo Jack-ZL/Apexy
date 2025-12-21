@@ -2,6 +2,7 @@ package route
 
 import (
 	"net/http"
+	"strings"
 	"sync"
 
 	"apexy/config"
@@ -64,10 +65,26 @@ func matchRoute(req *http.Request, route *config.Route) bool {
 
 	if route.Path != "" && req.URL.Path != route.Path { // 检查 URL 路径是否匹配 (精确匹配)
 		//  TODO:  可以根据需要支持更复杂的路径匹配 (例如 AntPath, 正则表达式)
+		if !strings.HasPrefix(req.URL.Path, route.Path) { // 支持前缀匹配
+			return false
+		}
+
+		if !strings.HasSuffix(route.Path, "/") && len(req.URL.Path) > len(route.Path) && req.URL.Path[len(route.Path)] != '/' {
+			return false
+		}
+
+		if strings.HasSuffix(route.Path, "/") && !strings.HasPrefix(req.URL.Path, route.Path) {
+			return false
+		}
+
+		if strings.HasSuffix(route.Path, "/") && len(req.URL.Path) == len(route.Path)-1 {
+			return false
+		}
+
 		return false
 	}
 
-	//  TODO:  可以根据需要添加更多匹配条件 (例如 Header, Query Parameters, 自定义匹配规则)
+	// TODO:  可以根据需要添加更多匹配条件 (例如 Header, Query Parameters, 自定义匹配规则)
 
 	return true // 路由匹配成功
 }

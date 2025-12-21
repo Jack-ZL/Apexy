@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"apexy/log"
+	"fmt"
 	"net/http"
 )
 
@@ -16,5 +18,9 @@ func NewHealthzHandler() *HealthzHandler {
 // ServeHTTP 实现 http.Handler 接口，处理健康检查请求
 func (h *HealthzHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
+	writeRes, err := w.Write([]byte("OK"))
+	if err != nil {
+		panic(fmt.Sprintf("write err:%v", err.Error()))
+	}
+	log.Infof("Healthz check responded with %d bytes", writeRes)
 }
