@@ -1,6 +1,6 @@
 module apexy
 
-go 1.24.1
+go 1.25.0
 
 require (
 	github.com/prometheus/client_golang v1.20.5
@@ -18,6 +18,6 @@ require (
 	github.com/prometheus/common v0.62.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/sys v0.43.1-0.20260408233230-690c91f6ecf3 // indirect
 	google.golang.org/protobuf v1.36.5 // indirect
 )
