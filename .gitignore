@@ -22,6 +22,8 @@
 go.work
 
 config/*.yaml
+# 但保留示例配置, 供新环境参考 (默认配置模板)
+!config/config.example.yaml
 
 .idea
 .DS_Store

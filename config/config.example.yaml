@@ -1,0 +1,100 @@
+server:
+  port: 8080
+  read_timeout_seconds: 15   # 读取请求超时 (秒), 0 使用默认值 15s
+  write_timeout_seconds: 0   # 写响应超时 (秒), 0 表示不限制 (需大于路由 timeout_seconds, 由路由级超时控制后端等待)
+  idle_timeout_seconds: 120  # keep-alive 空闲超时 (秒), 0 使用默认值 120s
+  tls:                 # HTTPS/TLS 配置 (可选)
+    enabled: false     # 为 true 时主服务以 HTTPS 监听, 需提供证书和私钥
+    cert_file: ""      # TLS 证书文件路径 (PEM)
+    key_file: ""       # TLS 私钥文件路径 (PEM)
+
+log:
+  level: debug  # debug, info, warn, error, fatal, panic
+  format: text # text or json
+  output: stdout # stdout or file
+  file: "api-gateway.log" # 日志文件路径 (当 output 为 file 时生效)
+
+metrics:
+  port: 9090
+
+cors:
+  enabled: true
+  max_age_seconds: 600 # 预检请求 (OPTIONS) 结果缓存时间 (秒)
+  allowed_origins:
+    - "*" # 允许所有 Origin  (生产环境建议配置具体的 Origin)
+  allowed_methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+    - "OPTIONS"
+  allowed_headers:
+    - "Origin"
+    - "Content-Type"
+    - "Accept"
+    - "Authorization"
+  exposed_headers:
+    - "Content-Length"
+  allow_credentials: true
+
+auth:
+  api_key_auth:
+    enabled: true
+    header_name: X-API-Key
+    keys:
+      - "your-api-key-1" #  示例 API Key, 生产环境请使用更安全的 Key 管理方式
+      - "your-api-key-2"
+
+rate_limit:
+  enabled: true
+  trust_forwarded_headers: false # 是否信任 X-Real-IP/X-Forwarded-For (仅在网关位于可信反向代理之后时开启, 否则可被伪造头绕过限流)
+  general: # 全局限流策略
+    requests_per_minute: 1000 #  每分钟最多 1000 个请求 (示例值)
+  routes: # 路由特定限流策略 (可选), key 为路由路径, 值直接是策略
+    /api/v1/users:
+      requests_per_minute: 500 #  /api/v1/users 路由每分钟最多 500 个请求 (示例值)
+
+routes:
+  - path: /api/v1/users #  路由路径 (精确匹配或路径段边界前缀匹配, 如 /api/v1/users/123)
+    method: GET      #  HTTP 方法 (可选，为空则匹配所有方法)
+    backend: http://localhost:8081 # 后端服务地址
+    timeout_seconds: 10 # 后端请求超时时间 (秒), 0 表示不限制, 超时返回 504
+    auth:
+      api_key_auth_enabled: true #  该路由启用 API Key 认证 (会覆盖全局配置)
+    rate_limit:
+      enabled: true # 该路由启用速率限制 (会覆盖全局配置)
+      policy:
+        requests_per_minute: 200 #  该路由每分钟最多 200 个请求 (路由特定限流策略，会覆盖全局策略)
+    request_transform: #  请求转换规则 (可选)
+      headers_to_add:
+        X-Request-ID: "request-123" #  添加自定义 Header
+      headers_to_remove:
+        - "X-Powered-By" #  删除指定 Header
+      query_params_to_add:
+        app_version: "1.0" # 添加 Query 参数
+      query_params_to_remove:
+        - "debug" # 删除 Query 参数
+    response_transform: # 响应转换规则 (可选)
+      headers_to_add:
+        X-Gateway-Version: "1.0" # 添加自定义 Header
+      headers_to_remove:
+        - "Server" #  删除指定 Header
+
+  - path: /api/v2/products
+    method: POST
+    backend: http://localhost:8082
+    auth:
+      api_key_auth_enabled: false #  该路由禁用 API Key 认证
+    rate_limit:
+      enabled: false # 该路由禁用速率限制
+
+  - path: /public/data #  公共 API, 无需认证和限流
+    backend: http://localhost:8083
+    auth:
+      api_key_auth_enabled: false
+    rate_limit:
+      enabled: false
+
+  - path: /api/fallback #  fallback 路由,  匹配所有 /api/ 开头的路径 (示例，需要更复杂的路由匹配逻辑)
+    method: GET
+    backend: http://localhost:8084
